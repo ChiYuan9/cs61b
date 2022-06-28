@@ -3,7 +3,7 @@
  */
 public class LeapYear {
     /** Judge whether the given number is divisible by 400 or dividible by 4 and
-    * and not by 100
+    * and not by 100.
     */
     public static boolean isLeapYear(int year){
         if(year % 400 == 0)
