@@ -109,7 +109,7 @@ public class Model extends Observable {
     public boolean tilt(Side side) {
         boolean changed;
         changed = false;
-
+        board.setViewingPerspective(side);
         // TODO: Modify this.board (and perhaps this.score) to account
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
@@ -129,16 +129,65 @@ public class Model extends Observable {
                 }
             }
         }
-        changed = true;
+        boolean[][] mergeup = new boolean[size()][size()];
+        for(int i = 0; i <size(); i++)
+        {
+            for(int j = 0; j <size(); j++)
+            {
+                mergeup[i][j] = false;
+            }
+        }
+        for(int i = 0; i < size(); i++)
+        {
+            for(int j = size() - 2; j>=0; j--)
+            {
+                if(tile(i, j) != null)
+                {
+                    for(int k = j+1; k < size(); k++)
+                    {
+                        if(tile(i, k) != null)
+                        {
+                            if((tile(i, k).value() == tile(i, j).value()) && mergeup[i][k] == false)
+                            {
+                               mergeup[i][j] = true;
+                               score = score +tile(i,k).value()*2;
+                            }
+                            else
+                            {
+                                break;
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+
+        for(int i = 0; i < size(); i++)
+        {
+            for(int j = 0; j <= size(); j++)
+            {
+                for(int k = j; k < size(); k++)
+                {
+                    if(mergeup[i][k] == true)
+                    {
+                        moveup[i][j]++;
+                    }
+                }
+            }
+        }
+
         for(int i = 0; i < size(); i++)
             for(int j = size()-1; j >= 0; j--)
             {
                 if(tile(i,j) != null)
                 {
                    Tile t = board.tile(i, j);
-                    board.move(i, j+moveup[i][j], t);
+                   board.move(i, j+moveup[i][j], t);
                 }
             }
+        changed = moveOrNot(moveup,size());
+        board.setViewingPerspective(Side.NORTH);
         checkGameOver();
         if (changed) {
             setChanged();
@@ -146,6 +195,16 @@ public class Model extends Observable {
         return changed;
     }
 
+    public static boolean moveOrNot(int moveup[][],int size)
+    {
+        for(int i = 0; i < size; i++)
+            for(int j = 0; j < size; j++)
+            {
+                if(moveup[i][j] != 0)
+                    return true;
+            }
+        return false;
+    }
     /** Checks if the game is over and sets the gameOver variable
      *  appropriately.
      */
